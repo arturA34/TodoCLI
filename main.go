@@ -24,15 +24,17 @@ func main() {
 			"1. Create Todo\n" +
 			"2. List All Todos\n" +
 			"3. Update Todo\n" +
-			"4. Delete Todo\n\n")
+			"4. Delete Todo\n" +
+			"5. Change Todo Status\n\n" +
+			"What do you want to do : ")
 		choice, _ = strconv.Atoi(readLine(reader))
 		switch choice {
 		case 1:
 			var todoName, todoDescription string
 
-			fmt.Print("Write the name of the todo: ")
+			fmt.Print("Enter the name of the todo: ")
 			todoName = readLine(reader)
-			fmt.Print("Write the description of the todo (optional): ")
+			fmt.Print("Enter the description of the todo (optional): ")
 			todoDescription = readLine(reader)
 			todos = createTodo(todoName, todoDescription, todos)
 
@@ -51,33 +53,48 @@ func main() {
 			var name, description string
 			var id int
 			if listAllTodos(todos) {
-				fmt.Print("\nWrite the todo id that you want to update: ")
+				fmt.Print("\nEnter the todo id that you want to update: ")
 				id, _ = strconv.Atoi(readLine(reader))
-				fmt.Print("Write the new name of the todo: ")
+				fmt.Print("Enter the new name of the todo: ")
 				name = readLine(reader)
-				fmt.Print("Write the new description of the todo (optional): ")
+				fmt.Print("Enter the new description of the todo (optional): ")
 				description = readLine(reader)
 				updateTodo(name, description, id, todos)
 			}
 		case 4:
 			var id int
 			if listAllTodos(todos) {
-				fmt.Print("Write the todo id that you want to delete: ")
+				fmt.Print("\nEnter the todo id that you want to delete: ")
 				id, _ = strconv.Atoi(readLine(reader))
 				todos = deleteTodo(id, todos)
+			}
+		case 5:
+			if listAllTodos(todos) {
+				fmt.Print("\nEnter the todo ID whose status you want to change: ")
+				id, _ := strconv.Atoi(readLine(reader))
+				fmt.Print("Enter a new todo status: ")
+				status := readLine(reader)
+				todos[id].status = status
 			}
 		}
 	}
 }
 
 func createTodo(todoName string, todoDescription string, todos []Todo) []Todo {
+	if todoName == "" {
+		return todos
+	}
 	todoModel := Todo{todoName, todoDescription, "new"}
 	return append(todos, todoModel)
 }
 
 func updateTodo(todoName string, todoDescription string, todoId int, todos []Todo) {
-	todos[todoId].title = todoName
-	todos[todoId].description = todoDescription
+	if todoName != "" {
+		todos[todoId].title = todoName
+	}
+	if todoDescription != "" {
+		todos[todoId].description = todoDescription
+	}
 }
 
 func deleteTodo(todoId int, todos []Todo) []Todo {
@@ -94,9 +111,12 @@ func listAllTodos(todos []Todo) bool {
 		fmt.Println("There are no todos, returning to main menu")
 		return false
 	}
-	fmt.Println("Your todos: ")
+	fmt.Println("+------+----------+--------------------+--------+")
+	fmt.Println("|  ID  |   Name   |     Description    | Status |")
+	fmt.Println("+------+----------+--------------------+--------+")
 	for i, todo := range todos {
-		fmt.Print(i, ")", todo.title, " ", todo.description, "\n")
+		fmt.Printf("|%-6d|%-10s|%-20s|%-8s|\n", i, todo.title, todo.description, todo.status)
+		fmt.Println("+------+----------+--------------------+--------+")
 	}
 	return true
 }
